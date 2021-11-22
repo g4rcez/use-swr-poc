@@ -10,15 +10,10 @@ type Country = {
 };
 
 function App() {
-  const url = HttpClient.useUrl(
-    `v3.1/all`,
-    undefined,
-    "https://restcountries.com/"
-  );
+  const url = HttpClient.useUrlState(`https://restcountries.com/v3.1/all`);
+  const response = useSWR<Country[]>(url.href, HttpClient.fetcher);
 
-  const response = useSWR<Country[]>(url, HttpClient.fetcher);
-
-  if (!response.error && !response.data) {
+  if (response.isValidating) {
     return <h1>Loading...</h1>;
   }
 
@@ -29,11 +24,23 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <ul>
+        <div>
+          <button
+            onClick={() =>
+              url.setWindowQueryString({ a: 1, b: 2, random: Math.random() })
+            }
+          >
+            Querify {`{a:1,b:2}`}
+          </button>
+        </div>
+        <pre>
+          <code>{JSON.stringify(url, null, 4)}</code>
+        </pre>
+        {/* <ul>
           {response.data?.map((x) => (
-            <li>{x.name.official}</li>
+            <li key={x.name.official}>{x.name.official}</li>
           ))}
-        </ul>
+        </ul> */}
       </header>
     </div>
   );
